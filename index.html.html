@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>강아지 약 주문 챙기기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style id="app-style">
+:root{
+  --bg:#EEF2F1; --surface:#FFFFFF; --ink:#1C2B2A; --muted:#5E6E6C; --line:#D5DEDC;
+  --accent:#1F6F6B; --accent-ink:#FFFFFF;
+  --warn:#B07A00; --warn-bg:#FFF3C7; --warn-line:#F2C14E;
+  --bad:#B93A2A; --bad-bg:#FCE3DE; --bad-line:#E07A6A;
+  --ok:#2F7A4E; --ok-bg:#E2F2E8;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121918; --surface:#1B2423; --ink:#E6EEEC; --muted:#9AAAA7; --line:#2E3B39;
+    --accent:#5FB8B1; --accent-ink:#0E1716;
+    --warn:#F2C14E; --warn-bg:#3A3015; --warn-line:#8A6D1E;
+    --bad:#F08A7A; --bad-bg:#3D1F1A; --bad-line:#8C3A2E;
+    --ok:#7FCB9C; --ok-bg:#183326;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121918; --surface:#1B2423; --ink:#E6EEEC; --muted:#9AAAA7; --line:#2E3B39;
+  --accent:#5FB8B1; --accent-ink:#0E1716;
+  --warn:#F2C14E; --warn-bg:#3A3015; --warn-line:#8A6D1E;
+  --bad:#F08A7A; --bad-bg:#3D1F1A; --bad-line:#8C3A2E;
+  --ok:#7FCB9C; --ok-bg:#183326;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+main{max-width:640px;margin:0 auto;padding:28px 18px 48px}
+.hero{margin:8px 0 28px}
+.hero p.kicker{margin:0 0 6px;color:var(--muted);font-size:.95rem}
+.hero h1{margin:0;font-size:clamp(1.6rem,5.4vw,2.2rem);line-height:1.3;font-weight:700;letter-spacing:-.01em;word-break:keep-all}
+.hero h1 .num{color:var(--accent)}
+.hero.s-warn h1 .num{color:var(--warn)}
+.hero.s-bad h1 .num{color:var(--bad)}
+.med{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--line);
+  border-radius:14px;padding:18px 18px 14px;margin-bottom:16px}
+.med.s-ok{border-left-color:var(--ok)}
+.med.s-warn{border-left-color:var(--warn-line);background:linear-gradient(var(--warn-bg),var(--warn-bg)) top/100% 64px no-repeat,var(--surface)}
+.med.s-bad{border-left-color:var(--bad-line);background:linear-gradient(var(--bad-bg),var(--bad-bg)) top/100% 64px no-repeat,var(--surface)}
+.med-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.med h2{margin:0;font-size:1.15rem;font-weight:700;word-break:keep-all}
+.badge{flex:none;font-weight:700;font-size:.95rem;padding:2px 10px;border-radius:999px;background:var(--bg);color:var(--muted)}
+.s-ok .badge{background:var(--ok-bg);color:var(--ok)}
+.s-warn .badge{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-line)}
+.s-bad .badge{background:var(--bad-bg);color:var(--bad);border:1px solid var(--bad-line)}
+.next{margin:6px 0 12px;color:var(--muted)}
+.next strong{color:var(--ink);font-weight:500}
+.fields{display:flex;flex-wrap:wrap;gap:10px 18px;margin-bottom:12px;font-size:.92rem;color:var(--muted)}
+.fields label{display:flex;align-items:center;gap:6px}
+input,button{font:inherit;color:inherit}
+input{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;min-height:38px}
+input[type=number].short{width:4.2em}
+input:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button{cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--surface);padding:8px 14px;min-height:40px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+button.link{border:none;background:none;padding:4px 6px;min-height:0;color:var(--muted);text-decoration:underline;font-size:.88rem}
+.row-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.prices{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+.best{margin:0 0 10px;font-size:.95rem}
+.best b{color:var(--accent)}
+.price-form{display:grid;grid-template-columns:1fr 7.5em;gap:8px;margin-bottom:10px}
+.price-form input[type=date]{grid-column:1}
+.price-form button{grid-column:2;grid-row:2}
+.price-form input[name=url]{grid-column:1/-1}
+@media (min-width:560px){.price-form{grid-template-columns:1.3fr 1fr 1.1fr auto}.price-form input[type=date]{grid-column:auto}.price-form input[name=url]{grid-column:1/4}.price-form button{grid-column:4;grid-row:2}}
+.search{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.search a{display:inline-flex;align-items:center;min-height:38px;padding:6px 12px;border-radius:10px;border:1px solid var(--accent);color:var(--accent);text-decoration:none;font-weight:500;font-size:.92rem}
+.search a:hover{background:var(--bg)}
+.search a:focus-visible,.plist a:focus-visible,.best a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.plist a,.best a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.best a.go{color:var(--accent);font-weight:700;margin-left:6px}
+.plist{list-style:none;margin:0;padding:0;font-size:.93rem}
+.plist li{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.plist li:last-child{border-bottom:none}
+.plist .d{color:var(--muted);font-variant-numeric:tabular-nums}
+.plist .p{font-variant-numeric:tabular-nums;font-weight:500}
+.plist li.lowest .p{color:var(--accent);font-weight:700}
+.plist .x{border:none;background:none;min-height:0;padding:2px 6px;color:var(--muted);font-size:1.1rem;line-height:1}
+.empty{color:var(--muted);font-size:.92rem;margin:0}
+details.add{margin-top:24px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+details.add summary{cursor:pointer;font-weight:700}
+.add-form{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;align-items:center}
+.add-form input[name=name]{flex:1 1 12em}
+.foot{margin-top:28px;color:var(--muted);font-size:.85rem;text-align:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<main id="root"></main>
+<script type="application/json" id="data">{"updatedAt":0,"meds":[{"id":"m1","name":"벳플러스 새밀린","months":3,"last":"","prices":[]},{"id":"m2","name":"벳플러스 라이펙스","months":2,"last":"","prices":[]},{"id":"m3","name":"벳플러스 케나인 케닌 시스테이드","months":4,"last":"","prices":[]}]}</script>
+<script id="app">
+(function(){
+  var STYLE = document.getElementById('app-style').textContent;
+  var APP = document.getElementById('app').textContent;
+  var LS_KEY = 'dog-meds-v1';
+  var WEEK = ['일','월','화','수','목','금','토'];
+  var state;
+  try { state = JSON.parse(document.getElementById('data').textContent); } catch(e){ state = {updatedAt:0, meds:[]}; }
+  try {
+    var ls = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+    if (ls && ls.meds && (ls.updatedAt||0) > (state.updatedAt||0)) state = ls;
+  } catch(e){}
+
+  (state.meds||[]).forEach(function(m){ if (m.name === '벳플러스 케닌 시스테이드') m.name = '벳플러스 케나인 케닌 시스테이드'; });
+  var api = null, pageSave = true;
+  if (window.claude && typeof window.claude.use === 'function') {
+    window.claude.use('artifact').then(function(a){ api = a; if(!a) pageSave = false; renderFoot(); })
+      .catch(function(){ pageSave = false; renderFoot(); });
+  } else { pageSave = false; }
+
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function parseD(s){ var p = s.split('-').map(Number); return new Date(p[0], p[1]-1, p[2]); }
+  function iso(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function today(){ var n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+  function addMonths(s, n){
+    var d = parseD(s), day = d.getDate();
+    var t = new Date(d.getFullYear(), d.getMonth()+n, 1);
+    var last = new Date(t.getFullYear(), t.getMonth()+1, 0).getDate();
+    t.setDate(Math.min(day, last)); return t;
+  }
+  function kdate(d){ return d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일 ('+WEEK[d.getDay()]+')'; }
+  function won(n){ return Number(n).toLocaleString('ko-KR')+'원'; }
+  function uid(){ return Math.random().toString(36).slice(2,9); }
+  function safeUrl(u){ return /^https:\/\//i.test(u||'') ? u : ''; }
+  function sellerHtml(p){
+    var u = safeUrl(p.url);
+    return u ? '<a href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">'+esc(p.seller)+'</a>' : esc(p.seller);
+  }
+  function searchLinks(name){
+    var q = encodeURIComponent(name);
+    return '<div class="search">'+
+      '<a href="https://search.shopping.naver.com/search/all?query='+q+'&sort=price_asc" target="_blank" rel="noopener noreferrer">네이버 최저가 보기</a>'+
+      '<a href="https://www.coupang.com/np/search?q='+q+'" target="_blank" rel="noopener noreferrer">쿠팡에서 보기</a>'+
+      '<a href="https://www.google.com/search?tbm=shop&q='+q+'" target="_blank" rel="noopener noreferrer">구글 쇼핑 보기</a>'+
+    '</div>';
+  }
+
+  function info(m){
+    if (!m.last) return {status:'none', left:null, next:null};
+    var next = addMonths(m.last, Number(m.months)||1);
+    var left = Math.round((next - today())/86400000);
+    var status = left < 0 ? 'bad' : (left <= 14 ? 'warn' : 'ok');
+    return {status:status, left:left, next:next};
+  }
+  function badge(i){
+    if (i.status === 'none') return '날짜 입력 필요';
+    if (i.left < 0) return (-i.left)+'일 지남';
+    if (i.left === 0) return '오늘 주문';
+    return 'D-'+i.left;
+  }
+
+  function hero(){
+    var list = state.meds.map(function(m){ return {m:m, i:info(m)}; }).filter(function(x){ return x.i.next; });
+    if (!state.meds.length) return '<section class="hero"><p class="kicker">강아지 약 주문 챙기기</p><h1>아래에서 먹이는 약을 추가해 주세요.</h1></section>';
+    if (!list.length) return '<section class="hero"><p class="kicker">강아지 약 주문 챙기기</p><h1>약마다 마지막 주문일을 넣으면 다음 주문일을 계산해 드려요.</h1></section>';
+    list.sort(function(a,b){ return a.i.left - b.i.left; });
+    var x = list[0], n = esc(x.m.name), s = x.i.status, line;
+    if (x.i.left < 0) line = n+' 주문일이 <span class="num">'+(-x.i.left)+'일</span> 지났어요.';
+    else if (x.i.left === 0) line = '오늘 '+n+'을(를) <span class="num">주문</span>해야 해요.';
+    else line = '다음 주문은 '+n+', <span class="num">'+x.i.left+'일</span> 남았어요.';
+    return '<section class="hero s-'+s+'"><p class="kicker">강아지 약 주문 챙기기</p><h1>'+line+'</h1></section>';
+  }
+
+  function sellers(){
+    var set = {};
+    state.meds.forEach(function(m){ m.prices.forEach(function(p){ set[p.seller] = 1; }); });
+    return Object.keys(set);
+  }
+
+  function card(m){
+    var i = info(m);
+    var prices = m.prices.slice().sort(function(a,b){ return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+    var low = null;
+    prices.forEach(function(p){ if (!low || Number(p.price) < Number(low.price)) low = p; });
+    var nextTxt = i.next ? '다음 주문일 <strong>'+kdate(i.next)+'</strong>' : '마지막 주문일을 넣어 주세요.';
+    var plist = prices.length
+      ? '<ul class="plist">'+prices.map(function(p){
+          return '<li class="'+(low && p.id===low.id ? 'lowest':'')+'"><span class="d">'+esc(p.date)+'</span><span>'+sellerHtml(p)+'</span><span class="p">'+won(p.price)+'</span><button class="x" data-act="delprice" data-pid="'+esc(p.id)+'" aria-label="'+esc(p.seller)+' 가격 기록 삭제">×</button></li>';
+        }).join('')+'</ul>'
+      : '<p class="empty">아직 가격 기록이 없어요. 주문할 때 판매처와 가격을 적어 두세요.</p>';
+    var best = low ? '<p class="best">지금까지 최저가: <b>'+esc(low.seller)+' '+won(low.price)+'</b> ('+esc(low.date)+')'+(safeUrl(low.url) ? '<a class="go" href="'+esc(low.url)+'" target="_blank" rel="noopener noreferrer">바로 주문하러 가기</a>' : '')+'</p>' : '';
+    return '<article class="med s-'+i.status+'" data-id="'+esc(m.id)+'">'+
+      '<div class="med-head"><h2>'+esc(m.name)+'</h2><span class="badge">'+badge(i)+'</span></div>'+
+      '<p class="next">'+nextTxt+'</p>'+
+      '<div class="fields">'+
+        '<label>주기 <input class="short" type="number" min="1" max="24" value="'+esc(m.months)+'" data-act="months" aria-label="주문 주기(개월)"> 개월</label>'+
+        '<label>마지막 주문일 <input type="date" value="'+esc(m.last)+'" data-act="last"></label>'+
+      '</div>'+
+      '<div class="row-actions"><button class="primary" data-act="ordered">오늘 주문했어요</button><button class="link" data-act="delmed">이 약 삭제</button></div>'+
+      searchLinks(m.name)+
+    '</article>';
+  }
+
+  function render(){
+    var meds = state.meds.slice().sort(function(a,b){
+      var A = info(a), B = info(b);
+      var va = A.left === null ? 1e9 : A.left, vb = B.left === null ? 1e9 : B.left;
+      return va - vb;
+    });
+    document.getElementById('root').innerHTML =
+      hero() + meds.map(card).join('') +
+      '<details class="add"><summary>약 추가하기</summary>'+
+        '<form class="add-form" data-act="addmed">'+
+          '<input name="name" placeholder="약 이름" required aria-label="약 이름">'+
+          '<label>주기 <input class="short" name="months" type="number" min="1" max="24" value="3" required> 개월</label>'+
+          '<label>마지막 주문일 <input name="last" type="date"></label>'+
+          '<button class="primary" type="submit">추가</button>'+
+        '</form></details>'+
+      '<p class="foot" id="foot"></p>';
+    renderFoot();
+  }
+  function renderFoot(){
+    var f = document.getElementById('foot'); if (!f) return;
+    f.textContent = pageSave ? '입력한 내용은 이 페이지에 저장돼요. 다른 기기에서 열어도 그대로 보여요.' : '입력한 내용은 이 브라우저에 저장돼요.';
+  }
+
+  function buildHtml(){
+    var json = JSON.stringify(state).replace(/</g,'\\u003c');
+    return '<!doctype html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n'+
+      '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'+
+      '<title>강아지 약 주문 챙기기</title>\n'+
+      '<link rel="preconnect" href="https://fonts.googleapis.com">\n'+
+      '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'+
+      '<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">\n'+
+      '<style id="app-style">'+STYLE+'</style>\n</head>\n<body>\n<main id="root"></main>\n'+
+      '<script type="application/json" id="data">'+json+'<\/script>\n'+
+      '<script id="app">'+APP+'<\/script>\n</body>\n</html>\n';
+  }
+
+  function save(){
+    state.updatedAt = Date.now();
+    try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e){}
+    render();
+    if (api && pageSave) {
+      api.publish(buildHtml()).catch(function(err){
+        var c = err && err.code;
+        if (c === 'conflict') return;
+        if (c === 'rate_limited' || c === 'upstream_error') return;
+        pageSave = false; renderFoot();
+      });
+    }
+  }
+
+  function find(el){
+    var a = el.closest('.med'); if (!a) return null;
+    var id = a.getAttribute('data-id');
+    for (var k=0;k<state.meds.length;k++) if (state.meds[k].id === id) return state.meds[k];
+    return null;
+  }
+
+  var root = document.getElementById('root');
+  root.addEventListener('change', function(e){
+    var t = e.target, act = t.getAttribute('data-act'), m = find(t);
+    if (!m) return;
+    if (act === 'months') { var v = parseInt(t.value,10); if (v >= 1 && v <= 24) { m.months = v; save(); } }
+    if (act === 'last') { m.last = t.value || ''; save(); }
+  });
+  root.addEventListener('click', function(e){
+    var b = e.target.closest('button[data-act]'); if (!b) return;
+    var act = b.getAttribute('data-act'), m = find(b);
+    if (act === 'ordered' && m) { m.last = iso(today()); save(); }
+    if (act === 'delmed' && m) {
+      if (confirm(m.name+'을(를) 목록에서 삭제할까요? 가격 기록도 함께 지워져요.')) {
+        state.meds = state.meds.filter(function(x){ return x !== m; }); save();
+      }
+    }
+    if (act === 'delprice' && m) {
+      var pid = b.getAttribute('data-pid');
+      m.prices = m.prices.filter(function(p){ return p.id !== pid; }); save();
+    }
+  });
+  root.addEventListener('submit', function(e){
+    var f = e.target, act = f.getAttribute('data-act');
+    e.preventDefault();
+    if (act === 'addprice') {
+      var m = find(f); if (!m) return;
+      var seller = f.elements['seller'].value.trim(), price = parseInt(f.elements['price'].value,10), date = f.elements['date'].value;
+      if (!seller || !(price >= 0) || !date) return;
+      var url = f.elements['url'].value.trim();
+      if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+      url = url.replace(/^http:\/\//i, 'https://');
+      m.prices.push({id:uid(), seller:seller, price:price, date:date, url:url}); save();
+    }
+    if (act === 'addmed') {
+      var name = f.elements['name'].value.trim(), months = parseInt(f.elements['months'].value,10);
+      if (!name || !(months >= 1)) return;
+      state.meds.push({id:uid(), name:name, months:months, last:f.elements['last'].value || '', prices:[]}); save();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
