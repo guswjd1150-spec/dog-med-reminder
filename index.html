@@ -116,6 +116,7 @@ details.add summary{cursor:pointer;font-size:1.05rem}
 .cal{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;padding:10px 12px;border-radius:18px;background:var(--bg);font-size:.92rem}
 .cal span{color:var(--muted);flex-basis:100%}
 .cal a,.cal button{display:inline-flex;align-items:center;min-height:38px;padding:5px 14px;border-radius:999px;background:var(--surface);border:2px solid var(--line);color:var(--ink);text-decoration:none;font-size:.95rem;font-family:"Jua","Gowun Dodum",system-ui,sans-serif}
+.cal.off button{opacity:.45;cursor:not-allowed}
 .hist{margin-top:10px}
 .hist summary{cursor:pointer;color:var(--muted);font-size:1rem;font-family:"Jua","Gowun Dodum",system-ui,sans-serif}
 .hist ul{list-style:none;margin:8px 0 0;padding:0}
@@ -225,7 +226,10 @@ details.add summary{cursor:pointer;font-size:1.05rem}
     setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
   }
   function calHtml(m,i){
-    if (!i.next) return '';
+    if (!i.next) return '<div class="cal off"><span>📅 위에 마지막 주문일을 넣으면 캨린더에 알림을 넣을 수 있어요</span>'+
+      '<button type="button" disabled>구글 캘린더에 넣기</button>'+
+      (HOSTED ? '' : '<button type="button" disabled>아이폰 캘린더에 넣기</button>')+
+    '</div>';
     return '<div class="cal"><span>📅 주문일 일주일 전에 폰 캘린더로 알림 받기</span>'+
       '<a href="'+esc(gcalUrl(m,i))+'" target="_blank" rel="noopener noreferrer">구글 캘린더에 넣기</a>'+
       (HOSTED ? '' : '<button type="button" data-act="ics">아이폰 캘린더에 넣기</button>')+
